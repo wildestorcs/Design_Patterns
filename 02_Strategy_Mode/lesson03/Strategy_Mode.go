@@ -89,19 +89,10 @@ type CashContext struct {
 }
 
 func NewCashSuper(strategyType string) *CashContext{
-	context := &CashContext{}
-	switch strategyType {
-	case "正常收费":
-		context.CashSuper = &CashNormal{}
-	case "8折":
-		context.CashSuper = &CashRebate{0.8}
-	case "满300返100":
-		context.CashSuper = &CashReturn{300, 100}
-	default:
-		panic("计价方式错误！")
+	CF := &CashFactory{}
+	return &CashContext{
+		CashSuper:CF.CreateCashAccept(strategyType),
 	}
-
-	return context
 }
 
 func (this *CashContext)GetResult(money float64) float64 {
@@ -109,13 +100,23 @@ func (this *CashContext)GetResult(money float64) float64 {
 }
 
 
+//客户端代码
+var total float64
+
+func addGoods(txtPrice, txtNum float64){
+	cs := NewCashSuper("满300返100")
+	totalPrice :=cs.GetResult(txtPrice * txtNum)
+	fmt.Printf("单价:%f, 数量:%f, 合计:%f\n", txtPrice, txtNum, totalPrice)
+	total += totalPrice
+}
+
+func showTotalPrice(){
+	fmt.Printf("总价:%f\n",total)
+}
+
+
 func main() {
-	var total float64
-	cash1 := NewCashSuper("正常收费")
-	total += cash1.GetResult(1 * 10000)
-	cash2 := NewCashSuper("满300返100")
-	total += cash2.GetResult(1 * 10000)
-	cash3 := NewCashSuper("8折")
-	total += cash3.GetResult(1 * 10000)
-	fmt.Println("total:", total)
+
+	addGoods(230.2, 2)
+	showTotalPrice()
 }
