@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 )
 
 /*
@@ -36,6 +35,9 @@ type CashNormal struct {
 }
 
 func (this *CashNormal) AcceptCash(money float64) float64{
+	if money < 0 {
+		panic("不允许负数作为参数")
+	}
 	return money
 }
 
@@ -44,8 +46,13 @@ type CashRebate struct {
 }
 
 func (this *CashRebate) AcceptCash(money float64) float64{
-	money = money * this.moneyRebate
-	return money
+	if money < 0 || this.moneyRebate < 0 {
+		panic("不允许负数作为参数")
+	}
+	if this.moneyRebate >= 1 {
+		panic("折扣无效")
+	}
+	return money * this.moneyRebate
 }
 
 type CashReturn struct {
@@ -54,32 +61,14 @@ type CashReturn struct {
 }
 
 func (this *CashReturn) AcceptCash(money float64) float64 {
-	result := money
-	if(money > this.moneyCondition){
-		result = money - math.Floor(money/this.moneyCondition)*this.moneyReturn
+	if money < 0 || this.moneyCondition < 0 || this.moneyReturn < 0 {
+		panic("不允许负数作为参数")
 	}
-	return result
-}
-
-//创建一个工厂类
-type CashFactory struct {
-}
-
-func(this *CashFactory) CreateCashAccept(oper string) (cashsuper CashSuper){
-	switch oper {
-	case "正常收费":
-		cashsuper = &CashNormal{}
-		break;
-	case "打8折":
-		cashsuper = &CashRebate{0.8}
-		break;
-	case "满300返100":
-		cashsuper = &CashReturn{300,100}
-		break;
-	default:
-		panic("运算符号错误！")
+	if money >= this.moneyCondition {
+		return money - float64(int(money/this.moneyCondition))*this.moneyReturn
+	} else {
+		return money
 	}
-	return
 }
 
 
