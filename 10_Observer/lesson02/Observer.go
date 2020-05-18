@@ -6,117 +6,104 @@ import "fmt"
     观察者模式的例子
  */
 
-//通知者接口
+//被观察者接口
 type Subject interface {
-	Attach(oberser *Observer)
-	Notify()
-	SecretaryAction(action string)
-}
+	 Attach(observer *Observer)
+	 Detach(observer *Observer)
+	 Notify()
+	 SubjectSetAction(action string)
+	 SubjectGetAction() string
 
-//观察者抽象
+ }
+
+
+//观察者
 type Observer interface {
-	Update()
+	Update(string)
 }
 
 
-
-
-//BOSS实现
+//被观察者实例
 type Boss struct {
 	observers []Observer
 	action string
 }
 
-func(this *Boss)Attach(oberser Observer){
-	this.observers = append(this.observers, oberser)
+func NewBoss(action string) *Boss{
+	return &Boss{action:action, observers:[]Observer{}}
 }
 
-func (this *Boss) Notify(){
-	for _,person :=range this.observers{
-		person.Update()
-		//数组种类的问题  数组里面为一类数据类型
+
+func(this *Boss)Attach(ob Observer){
+	this.observers = append(this.observers, ob)
+}
+
+func(this *Boss)Detach(ob Observer){
+	for i,sv := range this.observers{
+		if sv == ob{
+			this.observers = append(this.observers[:i],this.observers[i+1:]...)
+		}
 	}
 }
 
-func (this *Boss) SecretaryAction(action string){
+func(this *Boss)Notify(){
+	for _,person := range this.observers{
+		person.Update(this.action)
+	}
+}
+
+func(this *Boss)SubjectSetAction(action string){
 	this.action = action
 }
 
+func(this *Boss)SubjectGetAction() string{
+	return this.action
+}
 
-////前台秘书类
-//type Secretary struct {
-//	observers []*Observer
-//	action string
-//}
-//
-//func NewSecretary() *Secretary{
-//	return &Secretary{}
-//}
-//
-////添加同事
-//func (this *Secretary) Attach(oberser *Observer){
-//	this.observers = append(this.observers, oberser)
-//}
-//
-////通知
-//func (this *Secretary) Notify(){
-//	for _,person :=range this.observers{
-//		person.Update()
-//		//数组种类的问题  数组里面为一类数据类型
-//	}
-//}
+//观察者实例
+type StockObserver struct {
+	Name string
+	SelfAction string
+}
 
-//func (this *Secretary) SecretaryAction(action string){
-//	this.action = action
-//}
+//创建观察者实例
+func NewStockObserver(name string) *StockObserver{
+	return &StockObserver{Name:name}
+}
 
+func (this *StockObserver) Update(action string){
+	this.SelfAction = action
+	fmt.Printf("%s,%s 关闭股票行情,继续工作！\n", this.SelfAction, this.Name)
+}
 
+type NBAObserver struct {
+	Name string
+	SelfAction string
+}
 
+//创建观察者实例
+func NewNBAObserver(name string) *NBAObserver{
+	return &NBAObserver{Name:name}
+}
 
-//type IObserver interface {
-//	Update()
-//}
-//
-////看股票的同事类
-//type StockObserver struct {
-//	Observer
-//}
-//
-//func NewStockObserver(name string, sub *Secretary) *StockObserver{
-//	return &StockObserver{Observer{Name:name,Sub:sub}}
-//}
-//
-//func (this *StockObserver) Update(){
-//	fmt.Printf("%s,%s 关闭股票行情,继续工作！\n", this.Sub.action, this.Name)
-//}
-//
-////看NBA的同事类
-//type NBAObserver struct {
-//	Observer
-//}
-//
-//func NewNBAObserver(name string, sub *Secretary) *NBAObserver{
-//	return &NBAObserver{Observer{Name:name,Sub:sub}}
-//}
-//
-//func (this *NBAObserver) Update(){
-//	fmt.Printf("%s,%s 关闭NBA直播,继续工作！\n", this.Sub.action, this.Name)
-//}
+func (this *NBAObserver) Update(action string){
+	this.SelfAction = action
 
-
-
-
+	fmt.Printf("%s,%s 关闭NBA,继续工作！\n", this.SelfAction, this.Name)
+}
 
 func main() {
-	var tongzizhe = NewSecretary()
+	huhansan := NewBoss("老板走了")
+	tongshi1 := NewStockObserver("魏关姹")
+	tongshi2 := NewNBAObserver("易管查")
 
-	//同事1
-	tongshi1 := NewStockObserver("魏关姹", tongzizhe)
-	tongshi2 := NewStockObserver("易管查", tongzizhe)
+	huhansan.Attach(tongshi1)
+	huhansan.Attach(tongshi2)
+	//huhansan.Detach(tongshi2)
 
-	tongzizhe.Attach(tongshi1)
-	tongzizhe.Attach(tongshi2)
 
-	tongzizhe.SecretaryAction("老板回来了!")
-	tongzizhe.Notify()
+	huhansan.action ="我胡汉三回来了"
+
+	huhansan.Notify()
+
 }
