@@ -68,7 +68,7 @@ func (a *AccessDepartment) Insert(d *Department) {
 }
 
 func (a *AccessDepartment) GetDepartment(id int) {
-	fmt.Println("在SqlserverDepartment中根据ID得到Department表一条记录 ...")
+	fmt.Println("在AccessDepartment中根据ID得到Department表一条记录 ...")
 }
 
 
